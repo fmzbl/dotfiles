@@ -1,5 +1,4 @@
 " --- General  ---
-
 syntax on
 
 set number
@@ -16,6 +15,8 @@ set undofile
 set relativenumber
 set hidden
 set encoding=UTF-8
+set cmdheight=2
+set signcolumn=yes
 set mouse=a
 set guicursor=i:block
 
@@ -26,16 +27,17 @@ nnoremap <C-p> "+gP
 vnoremap <C-p> "+gP
 
 " --- Plugins  ---
-
 call plug#begin('~/.config/nvim/plugged')
 
-Plug 'jacoborus/tender.vim'
+Plug 'ellisonleao/gruvbox.nvim'
 
 Plug 'kyazdani42/nvim-tree.lua' 
 Plug 'kyazdani42/nvim-web-devicons'
 
 Plug 'nvim-telescope/telescope.nvim' 
 Plug 'nvim-lua/plenary.nvim'
+
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 " Lsp and autocomplete
 Plug 'neovim/nvim-lspconfig'
@@ -50,26 +52,58 @@ Plug 'hrsh7th/vim-vsnip'
 call plug#end()
 
 " --- Colors ---
+:lua << EOF
+	require("gruvbox").setup({
+	  undercurl = true,
+	  underline = true,
+	  bold = true,
+	  italic = false,
+	  inverse = true,
+	  invert_selection = false,
+	  invert_signs = false,
+	  invert_tabline = false,
+	  invert_intend_guides = false,
+	})
+	vim.cmd("colorscheme gruvbox")
+EOF
 
-set background=dark
+hi normal guibg=000000
 if (has("termguicolors"))
  set termguicolors
 endif
 
-colorscheme tender
+" --- Treesitter ---
+:lua << EOF
+	local status_ok, configs = pcall(require, "nvim-treesitter.configs")
+	if not status_ok then
+		return
+	end
+
+	configs.setup({
+		ensure_installed = "all", -- one of "all" or a list of languages
+		ignore_install = { "" }, -- List of parsers to ignore installing
+		highlight = {
+			enable = true, -- false will disable the whole extension
+			disable = { "" }, -- list of language that will be disabled
+		},
+		autopairs = {
+			enable = true,
+		},
+		indent = { enable = true, disable = { "" } },
+	}) 
+EOF
 
 " --- Flie tree ---
 :lua require("nvim-tree").setup()
 
 " --- Telescope ---
-:lua require('telescope').setup 
+:lua require('telescope').setup()
 nnoremap <leader>ff <cmd>Telescope find_files<cr>
 nnoremap <leader>fg <cmd>Telescope live_grep<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 
 " --- LSP and Autocomplete  ---
-
 command! Fmt execute 'lua vim.lsp.buf.formatting()'
 
 :lua << EOF
