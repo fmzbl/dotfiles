@@ -1,8 +1,10 @@
 # install neovim
 curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage --output $HOME/nvim.appimage
-chmod u+x nvim.appimage
-sudo mv squashfs-root /
-sudo ln -s /squashfs-root/AppRun /usr/bin/nvim
+chmod u+x $HOME/nvim.appimage
+$HOME/nvim.appimage --appimage-extract
+$HOME/squashfs-root/AppRun --version
+sudo mv $HOME/squashfs-root /
+sudo ln -s /usr/bin/nvim /squashfs-root/AppRun 
 
 # vim-plug
 sh -c 'curl -fLo $HOME/.config/nvim/autoload/plug.vim --create-dirs \
