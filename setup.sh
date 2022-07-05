@@ -1,5 +1,5 @@
 # install neovim
-curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage $HOME
+curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage --output $HOME/nvim.appimage
 chmod u+x nvim.appimage
 sudo mv squashfs-root /
 sudo ln -s /squashfs-root/AppRun /usr/bin/nvim
