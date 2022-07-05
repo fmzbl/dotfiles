@@ -17,7 +17,7 @@ if [ ! $(grep 'alias vim="nvim"' $HOME/.bashrc) ] && [ ! $(grep 'alias vi="nvim"
 fi
 
 # Install patched font
-mkdir $HOME/.local/share/fonts
+mkdir $HOME/.local/share/fonts/Hack
 wget -cO - https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Hack.zip > Hack.zip
-unzip Hack.zip -d -y "$HOME/.local/share/fonts/Hack/"
+unzip -o Hack.zip -d "$HOME/.local/share/fonts/Hack/"
 rm -f Hack.zip
