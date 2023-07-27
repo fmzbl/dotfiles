@@ -3,7 +3,7 @@
 " --- General
 syntax on
 
-colorscheme slate
+colorscheme zaibatsu
 set number
 set ruler
 set tabstop=4 softtabstop=4
