@@ -24,6 +24,7 @@ set wildmenu
 set wildignorecase
 set wildignore=\*.git\*
 set backspace=2
+set expandtab
 
 " --- Search
 :set hlsearch
