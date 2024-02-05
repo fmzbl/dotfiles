@@ -3,7 +3,7 @@
 " --- General
 syntax on
 
-colorscheme slate
+colorscheme zaibatsu
 set number
 set ruler
 set tabstop=4 softtabstop=4
@@ -24,6 +24,7 @@ set wildmenu
 set wildignorecase
 set wildignore=\*.git\*
 set backspace=2
+set expandtab
 
 " --- Search
 :set hlsearch
