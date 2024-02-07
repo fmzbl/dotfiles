@@ -110,7 +110,7 @@
 (use-package rustic
   :ensure
   :bind (:map rustic-mode-map
-              ;; ("M-j" . lsp-ui-imenu)
+              ("M-j" . lsp-ui-imenu)
               ("M-?" . lsp-find-references)
               ("C-c C-c l" . flycheck-list-errors)
               ("C-c C-c a" . lsp-execute-code-action)
@@ -140,7 +140,7 @@
   :ensure
   :commands lsp
   :custom
-  ;; what to use when checking on-save. "check" is default, I prefer clippy
+  ;; what to use when checking on-save. "check" is default, I prefer "clippy"
   (lsp-rust-analyzer-cargo-watch-command "clippy")
   (lsp-eldoc-render-all t)
   (lsp-idle-delay 0.5)
@@ -152,17 +152,22 @@
   (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
   (lsp-rust-analyzer-display-closure-return-type-hints t)
   (lsp-rust-analyzer-display-parameter-hints nil)
-  (lsp-rust-analyzer-display-reborrow-hints nil))
-  ;; :config
-  ;; (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+  (lsp-rust-analyzer-display-reborrow-hints nil)
+  :config
+  (add-hook 'lsp-mode-hook 'lsp-ui-mode))
 
-;; (use-package lsp-ui
-;;   :ensure
-;;   :commands lsp-ui-mode
-;;   :custom
-;;   (lsp-ui-peek-always-show t)
-;;   (lsp-ui-sideline-show-hover t)
-;;   (lsp-ui-doc-enable nil))
+ (use-package lsp-ui
+   :ensure
+   :commands lsp-ui-mode
+   :custom
+   (lsp-ui-peek-always-show nil)
+   (lsp-ui-sideline-show-hover nil)
+   (lsp-ui-doc-enable t))
+
+(use-package flycheck
+  :ensure t
+  :init
+  (global-flycheck-mode))
 
 ;; completion
 (use-package company
