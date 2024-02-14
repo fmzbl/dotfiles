@@ -31,34 +31,6 @@
 ;(setq interprogram-paste-function 'wgr/paste-from-osx)
 
 ;; BASIC STUFF
-;; save session
- (desktop-save-mode 1)
-
-;; command autocomplete
-(use-package vertico
-  :ensure t
-  :config
-  (vertico-mode 1))
-
-;(use-package marginalia
-;  :ensure t
-;  :config
-;  (marginalia-mode 1))
-
-(use-package ivy
-  :ensure t
-  :config
-  (ivy-mode 1))
-
-;; projectile
-(use-package projectile
-  :ensure t
-  :config
-  (projectile-mode 1)
-  (projectile-global-mode)
-  (setq projectile-completion-system 'ivy)
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
-
 ;; disable menu stuff
 (setq inhibit-startup-screen t)
 (menu-bar-mode 0)
@@ -73,17 +45,48 @@
 (setq custom-file "~/.emacs.d/emacs-custom.el")
 (load custom-file t)
 
+;; save session
+ (desktop-save-mode 1)
+
+;; command autocomplete
+(use-package vertico
+  :ensure t
+  :config
+  (vertico-mode 1))
+
+(use-package ivy
+  :ensure t
+  :config
+  (ivy-mode 1))
+
+;; Keybindings preview
+(use-package which-key
+    :config
+    (which-key-mode))
+
+;; projectile
+(use-package projectile
+  :ensure t
+  :config
+  (projectile-mode 1)
+  (projectile-global-mode)
+  (setq projectile-completion-system 'ivy)
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
+
+;; file tree
+(use-package neotree
+  :ensure t)
+
 ;; line numbers
 (global-display-line-numbers-mode 1)
 (setq display-line-numbers-type 'relative)
 
 ;; font
-(set-face-attribute 'default nil :height 110)
+(set-face-attribute 'default nil :height 105)
 
-;; theme
-(use-package solarized-theme
-  :init
-  (load-theme 'solarized-light t))
+;; Theme
+(use-package solarized-theme)
+(load-theme 'solarized-dark t)
 
 ;; git
 (use-package magit
@@ -103,8 +106,16 @@
   :init
   ;; (setq evil-search-module 'evil-search)
   (setq evil-undo-system 'undo-fu)
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
   :config
   (evil-mode 1))
+
+(use-package evil-collection
+  :after evil
+  :ensure t
+  :config
+  (evil-collection-init))
 
 ;; LANGUAGES AND LSP
 (use-package rustic
