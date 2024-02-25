@@ -86,7 +86,7 @@
 
 ;; Theme
 (use-package solarized-theme)
-(load-theme 'solarized-dark t)
+(load-theme 'solarized-light t)
 
 ;; git
 (use-package magit
@@ -118,54 +118,19 @@
   (evil-collection-init))
 
 ;; LANGUAGES AND LSP
-(use-package rustic
-  :ensure
-  :bind (:map rustic-mode-map
-              ("M-j" . lsp-ui-imenu)
-              ("M-?" . lsp-find-references)
-              ("C-c C-c l" . flycheck-list-errors)
-              ("C-c C-c a" . lsp-execute-code-action)
-              ("C-c C-c r" . lsp-rename)
-              ("C-c C-c q" . lsp-workspace-restart)
-              ("C-c C-c Q" . lsp-workspace-shutdown)
-              ("C-c C-c s" . lsp-rust-analyzer-status))
-  :custom
-  ;; what to use when checking on-save. "check" is default, I prefer "clippy"
-  (lsp-rust-analyzer-cargo-watch-command "clippy")
-  ;; enable / disable the hints as you prefer:
-  (lsp-inlay-hint-enable nil)
-  ;; These are optional configurations. See https://emacs-lsp.github.io/lsp-mode/page/lsp-rust-analyzer/#lsp-rust-analyzer-display-chaining-hints for a full list
-  (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
-  (lsp-rust-analyzer-display-chaining-hints t)
-  (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
-  (lsp-rust-analyzer-display-closure-return-type-hints t)
-  (lsp-rust-analyzer-display-parameter-hints nil)
-  (lsp-rust-analyzer-display-reborrow-hints nil)
-  :config
-  ;; uncomment for less flashiness
-  ;; (setq lsp-eldoc-hook nil)
-  ;; (setq lsp-enable-symbol-highlighting nil)
-  ;; (setq lsp-signature-auto-activate nil)
-  (setq rustic-format-on-save t)
-  (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook))
-
-(defun rk/rustic-mode-hook ()
-  ;; so that run C-c C-c C-r works without having to confirm, but don't try to
-  ;; save rust buffers that are not file visiting. Once
-  ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
-  ;; no longer be necessary.
-  (when buffer-file-name
-    (setq-local buffer-save-without-query t))
-  (add-hook 'before-save-hook 'lsp-format-buffer nil t))
-
 (use-package lsp-mode
   :ensure
   :commands lsp
   :bind-keymap ("C-c l" . lsp-command-map)
+  :bind
+  ("M-j" . lsp-ui-imenu)
+  ("M-?" . lsp-find-references)
   :custom
   (lsp-eldoc-render-all nil)
   (lsp-signature-auto-activate t)
-  (lsp-idle-delay 0.5)
+  (lsp-idle-delay 0.3)
+  ;; enable / disable the hints as you prefer:
+  (lsp-inlay-hint-enable nil)
   :config
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
   (lsp-enable-which-key-integration t))
@@ -190,41 +155,31 @@
   (company-idle-delay nil) ;; how long to wait until popup
   :bind
   (:map company-mode-map
-    ("<tab>". tab-indent-or-complete)
-    ("TAB". tab-indent-or-complete)))
-
-(use-package yasnippet
-  :ensure
+	("C-SPC". company-complete-common))
   :config
-  (yas-reload-all)
-  (add-hook 'prog-mode-hook 'yas-minor-mode)
-  (add-hook 'text-mode-hook 'yas-minor-mode))
+  ;; Trigger autoomplete binding
+  (global-company-mode))
 
+;; Rust
+(use-package rustic
+  :ensure
+  :custom
+  ;; what to use when checking on-save. "check" is default, I prefer "clippy"
+  (lsp-rust-analyzer-cargo-watch-command "clippy")
+  ;; These are optional configurations. See https://emacs-lsp.github.io/lsp-mode/page/lsp-rust-analyzer/#lsp-rust-analyzer-display-chaining-hints for a full list
+  (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
+  (lsp-rust-analyzer-display-chaining-hints t)
+  (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
+  (lsp-rust-analyzer-display-closure-return-type-hints t)
+  (lsp-rust-analyzer-display-parameter-hints nil)
+  (lsp-rust-analyzer-display-reborrow-hints nil)
+  :config
+  ;; uncomment for less flashiness
+  ;; (setq lsp-eldoc-hook nil)
+  ;; (setq lsp-enable-symbol-highlighting nil)
+  ;; (setq lsp-signature-auto-activate nil)
+  (setq rustic-format-on-save t))
+  ;;(add-hook 'rustic-mode-hook 'rk/rustic-mode-hook))
 
-(defun company-yasnippet-or-completion ()
-  (interactive)
-  (or (do-yas-expand)
-      (company-complete-common)))
-
-(defun check-expansion ()
-  (save-excursion
-    (if (looking-at "\\_>") t
-      (backward-char 1)
-      (if (looking-at "\\.") t
-        (backward-char 1)
-        (if (looking-at "::") t nil)))))
-
-(defun do-yas-expand ()
-  (let ((yas/fallback-behavior 'return-nil))
-    (yas/expand)))
-
-(defun tab-indent-or-complete ()
-  (interactive)
-  (if (minibufferp)
-      (minibuffer-complete)
-    (if (or (not yas/minor-mode)
-            (null (do-yas-expand)))
-        (if (check-expansion)
-            (company-complete-common)
-          (indent-for-tab-command)))))
-
+;; C
+(add-hook 'c-mode-hook 'lsp)
