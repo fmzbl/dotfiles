@@ -46,7 +46,22 @@
 (load custom-file t)
 
 ;; save session
- (desktop-save-mode 1)
+(desktop-save-mode 1)
+
+;; automatic parenthesis
+(electric-pair-mode t)
+
+;; Make emacs load my profile PATH
+(defun set-exec-path-from-shell-PATH ()
+  (let ((path-from-shell (replace-regexp-in-string
+                          "[ \t\n]*$"
+                          ""
+                          (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
+    (setenv "PATH" path-from-shell)
+    (setq eshell-path-env path-from-shell) ; for eshell users
+    (setq exec-path (split-string path-from-shell path-separator))))
+
+(when window-system (set-exec-path-from-shell-PATH))
 
 ;; command autocomplete
 (use-package vertico
@@ -86,7 +101,7 @@
 
 ;; Theme
 (use-package solarized-theme)
-(load-theme 'solarized-light t)
+(load-theme 'gruvbox t)
 
 ;; git
 (use-package magit
@@ -183,3 +198,19 @@
 
 ;; C
 (add-hook 'c-mode-hook 'lsp)
+
+;; Zig
+(use-package zig-mode
+  :ensure)
+
+;; CUSTOM FUNCTIONS
+(defun kill-all-buffers ()
+  (interactive)
+  (mapc 'kill-buffer (buffer-list)))
+
+(defun kill-other-buffers ()
+    "Kill all other buffers."
+    (interactive)
+    (mapc 'kill-buffer 
+          (delq (current-buffer) 
+                (cl-remove-if-not 'buffer-file-name (buffer-list)))))
