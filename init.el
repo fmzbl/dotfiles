@@ -97,10 +97,11 @@
 (setq display-line-numbers-type 'relative)
 
 ;; font
-(set-face-attribute 'default nil :height 105)
+(set-face-attribute 'default nil :height 130)
 
 ;; Theme
 (use-package solarized-theme)
+(use-package gruvbox-theme)
 (load-theme 'gruvbox t)
 
 ;; git
@@ -174,6 +175,11 @@
   :config
   ;; Trigger autoomplete binding
   (global-company-mode))
+
+(use-package yasnippet
+  :ensure
+  :init
+  (yas-global-mode 1))
 
 ;; Rust
 (use-package rustic
