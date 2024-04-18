@@ -181,6 +181,12 @@
   :init
   (yas-global-mode 1))
 
+;; Common Lisp
+(use-package slime
+  :ensure
+  :init
+  (setq inferior-lisp-program "sbcl"))
+
 ;; Rust
 (use-package rustic
   :ensure
