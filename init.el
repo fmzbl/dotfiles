@@ -97,7 +97,7 @@
 (setq display-line-numbers-type 'relative)
 
 ;; font
-(set-face-attribute 'default nil :height 130)
+(set-face-attribute 'default nil :font "Hack" :height 105)
 
 ;; Theme
 (use-package solarized-theme)
