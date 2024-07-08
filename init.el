@@ -102,7 +102,7 @@
 ;; Theme
 (use-package solarized-theme)
 (use-package gruvbox-theme)
-(load-theme 'gruvbox t)
+(load-theme 'solarized-light t)
 
 ;; git
 (use-package magit
@@ -208,8 +208,20 @@
   (setq rustic-format-on-save t))
   ;;(add-hook 'rustic-mode-hook 'rk/rustic-mode-hook))
 
-;; C
+;; C/C++
+
+;; Automatically use compile_commands.json if it exists
+(defun my/cmake-compile-commands-dir ()
+  "Set the directory for compile_commands.json if it exists."
+  (let ((dir (locate-dominating-file default-directory "compile_commands.json")))
+    (when dir
+      (setq-local lsp-clients-clangd-args (list (concat "--compile-commands-dir=" dir))))))
+
+(add-hook 'c-mode-hook 'my/set-lsp-clangd-compile-commands-dir)
+(add-hook 'c++-mode-hook 'my/set-lsp-clangd-compile-commands-dir)
+
 (add-hook 'c-mode-hook 'lsp)
+(add-hook 'c++-mode-hook 'lsp) 
 
 ;; Zig
 (use-package zig-mode
@@ -226,3 +238,6 @@
     (mapc 'kill-buffer 
           (delq (current-buffer) 
                 (cl-remove-if-not 'buffer-file-name (buffer-list)))))
+
+;; CUSTOM BINDINGS
+(global-set-key (kbd "C-c g") 'rgrep)
