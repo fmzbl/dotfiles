@@ -61,7 +61,7 @@
     (setq eshell-path-env path-from-shell) ; for eshell users
     (setq exec-path (split-string path-from-shell path-separator))))
 
-(when window-system (set-exec-path-from-shell-PATH))
+;; (when window-system (set-exec-path-from-shell-PATH))
 
 ;; command autocomplete
 (use-package vertico
@@ -120,6 +120,9 @@
   :demand t
   :bind (("<escape>" . keyboard-escape-quit))
   :init
+  ;; allow C-u vim scrolling
+  (define-key evil-normal-state-map (kbd "C-u") 'evil-scroll-up)
+  (setq evil-want-C-u-scroll t)
   ;; (setq evil-search-module 'evil-search)
   (setq evil-undo-system 'undo-fu)
   (setq evil-want-integration t)
