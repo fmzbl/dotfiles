@@ -20,15 +20,15 @@
 (setq use-package-always-ensure t)
 
 ;; osx copy and paste
-;(defun wgr/paste-from-osx ()
-;  (shell-command-to-string "pbpaste"))
-;(defun wgr/copy-to-osx (text &optional push)
-;  (let ((process-connection-type nil))
-;    (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
-;      (process-send-string proc text)
-;      (process-send-eof proc))))
-;(setq interprogram-cut-function 'wgr/copy-to-osx)
-;(setq interprogram-paste-function 'wgr/paste-from-osx)
+;; (defun wgr/paste-from-osx ()
+;;   (shell-command-to-string "pbpaste"))
+;; (defun wgr/copy-to-osx (text &optional push)
+;;   (let ((process-connection-type nil))
+;;     (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+;;       (process-send-string proc text)
+;;       (process-send-eof proc))))
+;; (setq interprogram-cut-function 'wgr/copy-to-osx)
+;; (setq interprogram-paste-function 'wgr/paste-from-osx)
 
 ;; BASIC STUFF
 ;; disable menu stuff
@@ -39,11 +39,14 @@
 ;; stop from overwritting config file
 (setq backup-directory-alist
       `(("." . "~/.emacs.d/backups")))
-(setq auto-save-file-name-transforms
-      `((".*" "~/.emacs.d/auto-save-list/" t)))
 
 (setq custom-file "~/.emacs.d/emacs-custom.el")
 (load custom-file t)
+
+;; Create a directory for autosave files if it doesn't exist
+(make-directory "~/.emacs.d/autosaves/" t)
+(setq auto-save-file-name-transforms
+      `((".*" "~/.emacs.d/autosaves/\\1" t)))
 
 ;; save session
 (desktop-save-mode 1)
@@ -76,15 +79,14 @@
 
 ;; Keybindings preview
 (use-package which-key
-    :config
-    (which-key-mode))
+  :config
+  (which-key-mode))
 
 ;; projectile
 (use-package projectile
   :ensure t
   :config
   (projectile-mode 1)
-  (projectile-global-mode)
   (setq projectile-completion-system 'ivy)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
 
@@ -100,9 +102,9 @@
 (set-face-attribute 'default nil :font "Hack" :height 105)
 
 ;; Theme
-(use-package solarized-theme)
-(use-package gruvbox-theme)
-(load-theme 'solarized-light t)
+;; (use-package solarized-theme)
+;; (use-package gruvbox-theme)
+(load-theme 'adwaita t)
 
 ;; git
 (use-package magit
@@ -114,21 +116,24 @@
 
 ;; VIM AND EVIL MODE
 ;; Vim style undo not needed for emacs 28
-(use-package undo-fu)
+(use-package undo-fu
+  :ensure t)
 ;;; Vim Bindings
 (use-package evil
   :demand t
   :bind (("<escape>" . keyboard-escape-quit))
   :init
-  ;; allow C-u vim scrolling
-  (define-key evil-normal-state-map (kbd "C-u") 'evil-scroll-up)
   (setq evil-want-C-u-scroll t)
-  ;; (setq evil-search-module 'evil-search)
+  (setq evil-search-module 'evil-search)
   (setq evil-undo-system 'undo-fu)
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
   :config
-  (evil-mode 1))
+  (evil-mode 1)
+  ;; allow evil C-r redo
+  (define-key evil-normal-state-map (kbd "C-r") 'undo-fu-only-redo)
+  ;; allow C-u vim scrolling
+  (define-key evil-normal-state-map (kbd "C-u") 'evil-scroll-up))
 
 (use-package evil-collection
   :after evil
@@ -154,13 +159,13 @@
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
   (lsp-enable-which-key-integration t))
 
- (use-package lsp-ui
-   :ensure
-   :commands lsp-ui-mode
-   :custom
-   (lsp-ui-peek-always-show nil)
-   (lsp-ui-sideline-show-hover nil)
-   (lsp-ui-doc-enable t))
+(use-package lsp-ui
+  :ensure
+  :commands lsp-ui-mode
+  :custom
+  (lsp-ui-peek-always-show nil)
+  (lsp-ui-sideline-show-hover nil)
+  (lsp-ui-doc-enable t))
 
 (use-package flycheck
   :ensure t
@@ -190,6 +195,10 @@
   :init
   (setq inferior-lisp-program "sbcl"))
 
+;; Racket
+(use-package racket-mode
+  :ensure t)
+
 ;; Rust
 (use-package rustic
   :ensure
@@ -208,10 +217,13 @@
   ;; (setq lsp-eldoc-hook nil)
   ;; (setq lsp-enable-symbol-highlighting nil)
   ;; (setq lsp-signature-auto-activate nil)
-  (setq rustic-format-on-save t))
+  ;; (setq rustic-format-on-save t))
   ;;(add-hook 'rustic-mode-hook 'rk/rustic-mode-hook))
+  )
+
 
 ;; C/C++
+
 
 ;; Automatically use compile_commands.json if it exists
 (defun my/cmake-compile-commands-dir ()
@@ -232,15 +244,35 @@
 
 ;; CUSTOM FUNCTIONS
 (defun kill-all-buffers ()
+  "Kill all active buffers."
   (interactive)
   (mapc 'kill-buffer (buffer-list)))
 
 (defun kill-other-buffers ()
-    "Kill all other buffers."
-    (interactive)
-    (mapc 'kill-buffer 
-          (delq (current-buffer) 
-                (cl-remove-if-not 'buffer-file-name (buffer-list)))))
+  "Kill all other buffers."
+  (interactive)
+  (mapc 'kill-buffer 
+        (delq (current-buffer) 
+              (cl-remove-if-not 'buffer-file-name (buffer-list)))))
+
+(defun toggle-lsp-format-on-save ()
+  "Toggle format on save for lsp-mode."
+  (interactive)
+  (if (bound-and-true-p lsp-enable-on-type-formatting)
+      (progn
+        (setq lsp-enable-on-type-formatting nil)
+        (setq lsp-enable-indentation nil)
+        (message "LSP format on save disabled"))
+    (progn
+      (setq lsp-enable-on-type-formatting t)
+      (setq lsp-enable-indentation t)
+      (message "LSP format on save enabled"))))
+
+(defun reload-init-file ()
+  "Reload the Emacs init file."
+  (interactive)
+  (load-file (expand-file-name "~/.emacs.d/init.el"))
+  (message "init.el reloaded successfully"))
 
 ;; CUSTOM BINDINGS
 (global-set-key (kbd "C-c g") 'rgrep)
