@@ -1,3 +1,22 @@
+;; CONSTANTS AND BINDINGS
+
+;; lsp binding
+(defconst keybinding-lsp "C-c l"
+  "Keybinding for LSP commands.")
+
+;; company binding
+(defconst keybinding-company "C-SCP"
+  "Keybinding for company commands.")
+
+
+;; company binding
+(defconst keybinding-projectile "C-c p"
+  "Keybinding for projectile commands.")
+
+;; rgrep binding
+(global-set-key (kbd "C-c g") 'rgrep)
+
+
 ;; PACKAGES 
 ;; setup packages
 (require 'package)
@@ -32,7 +51,7 @@
 
 ;; BASIC STUFF
 ;; disable menu stuff
-(setq inhibit-startup-screen t)
+;; (setq inhibit-startup-screen t)
 (menu-bar-mode 0)
 (tool-bar-mode 0)
 
@@ -88,7 +107,7 @@
   :config
   (projectile-mode 1)
   (setq projectile-completion-system 'ivy)
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
+  (define-key projectile-mode-map (kbd keybinding-projectile) 'projectile-command-map))
 
 ;; file tree
 (use-package neotree
@@ -102,9 +121,8 @@
 (set-face-attribute 'default nil :font "Hack" :height 105)
 
 ;; Theme
-;; (use-package solarized-theme)
-;; (use-package gruvbox-theme)
 (load-theme 'adwaita t)
+;; (load-theme 'tsdh-dark t)
 
 ;; git
 (use-package magit
@@ -145,17 +163,20 @@
 (use-package lsp-mode
   :ensure
   :commands lsp
-  :bind-keymap ("C-c l" . lsp-command-map)
-  :bind
-  ("M-j" . lsp-ui-imenu)
-  ("M-?" . lsp-find-references)
   :custom
   (lsp-eldoc-render-all nil)
   (lsp-signature-auto-activate t)
   (lsp-idle-delay 0.3)
   ;; enable / disable the hints as you prefer:
   (lsp-inlay-hint-enable nil)
+  :bind
+  ;; (keybinding-lsp-ui-menu . lsp-ui-imenu)
+  ;; (keybinding-lsp-find-references . lsp-find-references)
+  ("M-j" . lsp-ui-imenu)
+  ("M-?" . lsp-find-references)
   :config
+  (setq lsp-keymap-prefix keybinding-lsp)
+  (global-set-key (kbd keybinding-lsp) lsp-command-map)
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
   (lsp-enable-which-key-integration t))
 
@@ -193,7 +214,15 @@
 (use-package slime
   :ensure
   :init
-  (setq inferior-lisp-program "sbcl"))
+  (setq inferior-lisp-program "sbcl")
+  :config
+  (setq common-lisp-hyperspec-root "http://www.lispworks.com/reference/HyperSpec/")
+  (add-hook 'slime-mode-hook #'eldoc-mode)
+  (add-hook 'slime-repl-mode-hook #'eldoc-mode)
+  (with-eval-after-load 'evil
+    (evil-define-key 'normal slime-mode-map (kbd "M-.") 'slime-edit-definition)
+    (evil-define-key 'normal slime-repl-mode-map (kbd "M-.") 'slime-edit-definition)))
+
 
 ;; Racket
 (use-package racket-mode
@@ -203,7 +232,7 @@
 (use-package rustic
   :ensure
   :custom
-  ;; what to use when checking on-save. "check" is default, I prefer "clippy"
+  ;; what to use when checking on-save. "check" is default.
   (lsp-rust-analyzer-cargo-watch-command "clippy")
   ;; These are optional configurations. See https://emacs-lsp.github.io/lsp-mode/page/lsp-rust-analyzer/#lsp-rust-analyzer-display-chaining-hints for a full list
   (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
@@ -224,7 +253,6 @@
 
 ;; C/C++
 
-
 ;; Automatically use compile_commands.json if it exists
 (defun my/cmake-compile-commands-dir ()
   "Set the directory for compile_commands.json if it exists."
@@ -241,6 +269,7 @@
 ;; Zig
 (use-package zig-mode
   :ensure)
+
 
 ;; CUSTOM FUNCTIONS
 (defun kill-all-buffers ()
@@ -274,5 +303,32 @@
   (load-file (expand-file-name "~/.emacs.d/init.el"))
   (message "init.el reloaded successfully"))
 
-;; CUSTOM BINDINGS
-(global-set-key (kbd "C-c g") 'rgrep)
+
+;; == Utils ==
+
+(defun utils-calc-returns (buy-ammount sell-ammount)
+  (/ (float (- sell-ammount buy-ammount)) (float buy-ammount)))
+
+(defun utils-restart-sys-audio ()
+  "Restart the PipeWire audio service using systemctl."
+  (interactive)
+  (let ((output (shell-command-to-string "systemctl --user restart pipewire")))
+    (message "PipeWire restarted.")))
+
+
+;; == Setup ==
+
+(defun setup-install-rust ()
+  "Install Rust using rustup if it's not already installed."
+  (interactive)
+  (if (executable-find "rustup")
+      (progn
+        (message "Rust is already installed. Updating rustup...")
+        (shell-command "rustup update"))
+    (progn
+      (message "Installing Rust...")
+      (shell-command "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh")
+      (message "Rust installed successfully!"))))
+
+(defun setup-install-programms ()
+  (setup-install-rust))
