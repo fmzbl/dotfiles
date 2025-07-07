@@ -1,3 +1,4 @@
+
 ;; CONSTANTS AND BINDINGS
 
 ;; lsp binding
@@ -15,7 +16,6 @@
 
 ;; rgrep binding
 (global-set-key (kbd "C-c g") 'rgrep)
-
 
 ;; PACKAGES 
 ;; setup packages
@@ -118,7 +118,7 @@
 (setq display-line-numbers-type 'relative)
 
 ;; font
-(set-face-attribute 'default nil :font "Hack" :height 105)
+;; (set-face-attribute 'default nil :font "Hack" :height 105)
 
 ;; Theme
 (load-theme 'adwaita t)
@@ -270,7 +270,6 @@
 (use-package zig-mode
   :ensure)
 
-
 ;; CUSTOM FUNCTIONS
 (defun kill-all-buffers ()
   "Kill all active buffers."
@@ -316,6 +315,17 @@
     (message "PipeWire restarted.")))
 
 
+;; == Shortcuts ==
+
+(defun config ()
+  (interactive)
+  (find-file (expand-file-name "~/.emacs.d/init.el")))
+
+(defun notes ()
+  (interactive)
+  (find-file (expand-file-name "~/notes.txt")))
+
+
 ;; == Setup ==
 
 (defun setup-install-rust ()
@@ -332,3 +342,4 @@
 
 (defun setup-install-programms ()
   (setup-install-rust))
+
