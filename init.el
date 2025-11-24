@@ -121,8 +121,8 @@
 ;; (set-face-attribute 'default nil :font "Hack" :height 105)
 
 ;; Theme
-(load-theme 'adwaita t)
-;; (load-theme 'tsdh-dark t)
+;; (load-theme 'adwaita t)
+(load-theme 'manoj-dark t)
 
 ;; git
 (use-package magit
