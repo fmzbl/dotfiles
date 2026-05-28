@@ -121,8 +121,14 @@
 ;; (set-face-attribute 'default nil :font "Hack" :height 105)
 
 ;; Theme
-;; (load-theme 'adwaita t)
-(load-theme 'manoj-dark t)
+;;(load-theme 'adwaita t)
+;;(load-theme 'manoj-dark t)
+(use-package almost-mono-themes
+  :config
+  ;; (load-theme 'almost-mono-black t)
+  ;; (load-theme 'almost-mono-gray t)
+  ;; (load-theme 'almost-mono-cream t)
+  (load-theme 'almost-mono-white t))
 
 ;; git
 (use-package magit
@@ -158,6 +164,35 @@
   :ensure t
   :config
   (evil-collection-init))
+
+;; eat - terminal emulator
+(use-package eat
+  :ensure t
+  :custom
+  ;; Close buffer when process exits
+  (eat-kill-buffer-on-exit t)
+  ;; Better shell integration
+  (eat-enable-shell-integration t))
+
+(defun my-eat-new ()
+  (interactive)
+  (eat nil t))
+(bind-key "C-c t" #'my-eat-new)
+
+;; fix paste in eat terminal because of evil mode
+(with-eval-after-load 'eat
+  (evil-define-key 'insert eat-mode-map
+    (kbd "C-y") (lambda ()
+                  (interactive)
+                  (process-send-string
+                   (get-buffer-process (current-buffer))
+                   (substring-no-properties (current-kill 0))))))
+
+;; map paste t
+
+;; AI
+;; Environment variable for better Claude Code rendering
+(setenv "CLAUDE_CODE_NO_FLICKER" "1")
 
 ;; LANGUAGES AND LSP
 (use-package lsp-mode
